@@ -4,11 +4,9 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val publishUsername: String by project
 val publishPassword: String by project
-val build: String by project
 
 plugins {
     java
-    `maven-publish`
     kotlin("jvm") version "2.1.20"
     kotlin("plugin.serialization") version "2.1.20"
     id("io.izzel.taboolib") version "2.0.23"
@@ -60,6 +58,8 @@ repositories {
 }
 
 dependencies {
+    compileOnly("ink.ptms.core:v12104:12104:mapped")
+    compileOnly("ink.ptms.core:v12104:12104:universal")
     compileOnly("ink.ptms.core:v12004:12004:mapped")
     compileOnly("ink.ptms.core:v12004:12004:universal")
     compileOnly("ink.ptms.core:v11200:11200")
@@ -84,10 +84,6 @@ tasks.withType<JavaCompile> {
     options.encoding = "UTF-8"
 }
 
-tasks.withType<Jar> {
-    destinationDirectory.set(File(build))
-}
-
 tasks.withType<KotlinCompile> {
     compilerOptions {
         jvmTarget.set(JvmTarget.JVM_1_8)
@@ -104,33 +100,6 @@ kotlin {
     sourceSets.all {
         languageSettings {
             languageVersion = "2.0"
-        }
-    }
-}
-
-publishing {
-    repositories {
-        maven {
-            url = uri("https://www.mcwar.cn/nexus/repository/maven-releases/")
-            credentials {
-                username = publishUsername
-                password = publishPassword
-            }
-            authentication {
-                create<BasicAuthentication>("basic")
-            }
-        }
-    }
-    publications {
-        create<MavenPublication>("library") {
-            from(components["java"])
-            artifact(tasks["kotlinSourcesJar"]) {
-                classifier = "sources"
-            }
-            artifact("${build}/${rootProject.name}-${version}-api.jar") {
-                classifier = "api"
-            }
-            groupId = project.group.toString()
         }
     }
 }
